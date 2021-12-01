@@ -5,7 +5,7 @@ import TicketDetail from "./TicketDetail";
 import EditTicketForm from "./EditTicketForm";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import * as a from './../actions';
+import * as a from "./../actions";
 
 class TicketControl extends React.Component {
   constructor(props) {
@@ -15,6 +15,26 @@ class TicketControl extends React.Component {
       editing: false,
     };
   }
+
+  componentDidMount() {
+    this.waitTimeUpdateTimer = setInterval(
+      () => this.updateTicketElapsedWaitTime(),
+      60000
+    );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.waitTimeUpdateTimer);
+  }
+
+  updateTicketElapsedWaitTime = () => {
+    const { dispatch } = this.props;
+    Object.values(this.props.mainTicketList).forEach((ticket) => {
+      const newFormattedWaitTime = ticket.timeOpen.fromNow(true);
+      const action = a.updateTime(ticket.id, newFormattedWaitTime);
+      dispatch(action);
+    });
+  };
 
   handleClick = () => {
     if (this.state.selectedTicket != null) {
@@ -31,9 +51,9 @@ class TicketControl extends React.Component {
 
   handleAddingNewTicketToList = (newTicket) => {
     const { dispatch } = this.props;
-    const action = a.addTicket(newTicket)
+    const action = a.addTicket(newTicket);
     dispatch(action);
-    const action2 = a.toggleForm()
+    const action2 = a.toggleForm();
     dispatch(action2);
   };
 
